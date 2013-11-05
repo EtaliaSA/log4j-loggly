@@ -83,7 +83,7 @@ public class LogglyAppender extends AppenderSkeleton {
 			urlConn.getOutputStream().flush();
 			urlConn.getOutputStream().close();
 			if (urlConn.getResponseCode() != 200) {
-				System.err.println("Something was wrong with message: " + event.getMessage());
+				System.err.println("Something was wrong ("+urlConn.getResponseCode()+") with message: " + event.getMessage());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
