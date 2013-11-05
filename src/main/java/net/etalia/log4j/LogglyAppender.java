@@ -66,6 +66,14 @@ public class LogglyAppender extends AppenderSkeleton {
 
 	@Override
 	protected void append(LoggingEvent event) {
+		if (this.token == null || this.token.trim().isEmpty()) {
+			String t = System.getProperty("loggly.token");
+			if (t != null) {
+				setToken(t);
+			} else {
+				return;
+			}
+		}
 		String _url = LOGGLY_URL + this.token;
 		try {
 			URL url = new URL(_url);
