@@ -21,8 +21,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.varia.LevelRangeFilter;
 
 /**
  * This appender send entries to <a href="http://www.loggly.com/">Loggly</a>
@@ -44,9 +45,12 @@ public class LogglyAppender extends AppenderSkeleton {
 	 */
 	private String tags;
 
+	/**
+	 * The logging level
+	 */
+	private String level;
+
 	public LogglyAppender() {
-		PatternLayout l = new PatternLayout("%d{yyMMdd.HHmmss,SSS} %t %C{1}.%M %p: %m%n");
-		setLayout(l);
 	}
 
 	public void setToken(String token) {
@@ -54,7 +58,21 @@ public class LogglyAppender extends AppenderSkeleton {
 	}
 
 	public void setTags(String tags) {
+		String p = System.getProperty("loggly.tags");
+		if (p != null) {
+			tags = p + "," + tags;
+		}
 		this.tags = tags;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+		if (this.level != null) {
+			LevelRangeFilter f = new LevelRangeFilter();
+			f.setLevelMin(Level.toLevel(this.level));
+			f.setAcceptOnMatch(true);
+			this.addFilter(f);
+		}
 	}
 
 	public void close() {
@@ -67,9 +85,9 @@ public class LogglyAppender extends AppenderSkeleton {
 	@Override
 	protected void append(LoggingEvent event) {
 		if (this.token == null || this.token.trim().isEmpty()) {
-			String t = System.getProperty("loggly.token");
-			if (t != null) {
-				setToken(t);
+			String p = System.getProperty("loggly.token");
+			if (p != null) {
+				setToken(p);
 			} else {
 				return;
 			}
@@ -81,11 +99,14 @@ public class LogglyAppender extends AppenderSkeleton {
 			urlConn.setDoOutput(true);
 			urlConn.setRequestMethod("POST");
 			urlConn.setRequestProperty("content-type", "text/plain");
-			urlConn.setRequestProperty("X-LOGGLY-TAG", this.tags);
+			if (this.tags != null && this.tags.trim().length() > 0) {
+				urlConn.setRequestProperty("X-LOGGLY-TAG", this.tags);
+			}
 			urlConn.getOutputStream().write(this.layout.format(event).getBytes());
 			if (event.getThrowableStrRep() != null) {
 				for (String s : event.getThrowableStrRep()) {
 					urlConn.getOutputStream().write(s.getBytes());
+					urlConn.getOutputStream().write("\n".getBytes());
 				}
 			}
 			urlConn.getOutputStream().flush();

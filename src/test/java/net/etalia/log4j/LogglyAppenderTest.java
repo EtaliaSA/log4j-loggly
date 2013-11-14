@@ -25,7 +25,7 @@ public class LogglyAppenderTest {
 	@Test
 	public void simpleLog() throws Exception {
 		Logger log =  Logger.getLogger(LogglyAppenderTest.class);
-		log.debug("Trying to send this to loggly...");
+		log.info("Trying to send this to loggly...");
 	}
 
 	@Test
