@@ -6,7 +6,7 @@
 Log4J appender that send entries to Loggly service, it is not optimized for massive network usage, we suggest to use it only for a limited set of entries like error/warning logging.
 
 The easiest way to implement is to add our Maven Repository
-```
+```xml
 <repositories>
 	...
 	<repository>
@@ -39,7 +39,7 @@ The easiest way to implement is to add our Maven Repository
 
 add the dependecy in your pom.xml
 
-```
+```xml
 <dependency>
 	<groupId>net.etalia</groupId>
 	<artifactId>log4j-loggly</artifactId>
@@ -49,7 +49,7 @@ add the dependecy in your pom.xml
 
 and then add this to your log4j configuration
 
-```
+```properties
 log4j.rootLogger={other-appenders}, LOGGLY
 ...
 log4j.appender.LOGGLY=net.etalia.log4j.LogglyAppender
